@@ -1,12 +1,29 @@
 import { Feather } from "@expo/vector-icons";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import BlogContext from "../context/BlogPostProvider";
 
 const IndexScreen = ({ navigation }) => {
-  const { data: blogPost, deleteBlogPost } = useContext(BlogContext); // fetching value provided to the BlogContext Provider
-  const [newBlog, setNewBlog] = useState("");
+  const {
+    data: blogPost,
+    deleteBlogPost,
+    getBlogPosts,
+  } = useContext(BlogContext); // fetching value provided to the BlogContext Provider
+
+  useEffect(() => {
+    getBlogPosts();
+
+    const listener = navigation.addListener("didFocus", () => {
+      getBlogPosts();
+    });
+
+    //invoked only if this screen is completely removed
+    return () => {
+      listener.remove();
+    };
+  }, []);
+
   return (
     <View>
       <FlatList

@@ -1,51 +1,49 @@
 import React, { createContext, useReducer } from "react";
+import jsonServer from "../api/jsonServer";
+import { blogReducer } from "./reducer";
 
 const BlogContext = createContext();
-
-const blogReducer = (state, action) => {
-  switch (action.type) {
-    case "add":
-      return [...state, action.payload];
-    case "delete":
-      return state.filter((blog) => blog.id != action.payload.id);
-    case "get":
-      return [...state];
-    case "update":
-      return state.map((blog) => {
-        if (blog == action.payload.id) {
-          return action.payload;
-        }
-        return blog;
-      });
-    default:
-      return state;
-  }
-};
 
 export const BlogProvider = ({ children }) => {
   const [state, dispatch] = useReducer(blogReducer, []);
 
-  const addBlogPost = (post) => {
-    dispatch({
-      type: "add",
-      payload: { title: post.title, content: post.content },
-    });
+  const getBlogPosts = async () => {
+    const response = await jsonServer.get("/blogposts");
+    dispatch({ type: "get", payload: response.data });
+  };
+
+  const addBlogPost = async (post) => {
+    payload = {
+      title: post.title,
+      content: post.content,
+    };
+    await jsonServer.post("/blogposts", payload);
+
+    // dispatch({
+    //   type: "add",
+    //   payload,
+    // });
+
     post.navigate();
   };
 
-  const deleteBlogPost = (postId) => {
+  const deleteBlogPost = async (postId) => {
+    await jsonServer.delete(`/blogposts/${postId}`);
     dispatch({ type: "delete", payload: { id: postId } });
   };
 
-  const getBlogPost = () => {
-    dispatch({ type: "get" });
-  };
+  const updateBlogPost = async (post) => {
+    const payload = {
+      title: post.title,
+      content: post.content,
+    };
+    await jsonServer.put(`/blogposts/${post.id}`, payload);
 
-  const updateBlogPost = (post) => {
-    dispatch({
-      type: "update",
-      payload: { title: post.title, content: post.content, id: post.id },
-    });
+    // dispatch({
+    //   type: "update",
+    //   payload: { title: post.title, content: post.content, id: post.id },
+    //});
+
     post.navigate();
   };
 
@@ -55,7 +53,7 @@ export const BlogProvider = ({ children }) => {
         data: state,
         addBlogPost,
         deleteBlogPost,
-        getBlogPost,
+        getBlogPosts,
         updateBlogPost,
       }}
     >

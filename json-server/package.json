@@ -1,0 +1,12 @@
+ {
+  "name": "json-server",
+  "version": "1.0.0",
+  "description": "hosting local json-sever using ngrok",
+  "main": "index.js",
+  "scripts": {
+    "db":"json-server -w db.json",
+    "tunnel": "ngrok http http://localhost:3000"
+  },
+  "author": "",
+  "license": "ISC"
+}
